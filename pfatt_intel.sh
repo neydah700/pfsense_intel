@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 EAP_SUPPLICANT_IDENTITY="XX:XX:XX:XX:XX:XX"
+RG_ETHER_ADDR="XX:XX:XX:XX:XX:XX"
 LOG=/var/log/pfatt.log
 ONT_IF="igb1"
 
@@ -13,6 +14,7 @@ getTimestamp(){
 /usr/bin/logger -st "pfatt" "configuration:"
 /usr/bin/logger -st "pfatt" "  ONT_IF = $ONT_IF"
 /usr/bin/logger -st "pfatt" "  EAP_SUPPLICANT_IDENTITY = $EAP_SUPPLICANT_IDENTITY"
+/usr/bin/logger -st "pfatt" " RG_ETHER_ADDR = $RG_ETHER_ADDR"
 
 # Netgraph cleanup.
 /usr/bin/logger -st "pfatt" "resetting netgraph..."
@@ -26,10 +28,10 @@ getTimestamp(){
 /usr/sbin/ngctl name $ONT_IF:lower vlan0
 /usr/sbin/ngctl mkpeer vlan0: eiface vlan0 ether
 /usr/sbin/ngctl msg vlan0: 'addfilter { vlan=0 hook="vlan0" }'
-/usr/sbin/ngctl msg ngeth0: set $EAP_SUPPLICANT_IDENTITY
+/usr/sbin/ngctl msg ngeth0: set $RG_ETHER_ADDR
 
 /usr/bin/logger -st "pfatt" "enabling promisc for $ONT_IF..."
-/sbin/ifconfig $ONT_IF ether $EAP_SUPPLICANT_IDENTITY
+/sbin/ifconfig $ONT_IF ether $RG_ETHER_ADDR
 /sbin/ifconfig $ONT_IF up
 /sbin/ifconfig $ONT_IF promisc
 
@@ -101,7 +103,7 @@ do
 		/usr/bin/logger -st "pfatt" "ngeth0 should now be available to configure as your WAN..."
 		sleep 5
 		/usr/bin/logger -st "pfatt" "set mac address on ngeth0..."
-		/sbin/ifconfig ngeth0 ether $EAP_SUPPLICANT_IDENTITY
+		/sbin/ifconfig ngeth0 ether $RG_ETHER_ADDR
 		break
 	else
 		/usr/bin/logger -st "pfatt" "no authentication, retrying ${i}/5..."
